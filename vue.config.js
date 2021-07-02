@@ -4,7 +4,7 @@ module.exports = {
     devServer: {
         proxy: {
         	'^/api': {
-        		target:'http://admin.rnexus.test',
+        		target:'http://new.test',
         		ws:true,
         		changeOrigin: true
         	}

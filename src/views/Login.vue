@@ -65,9 +65,25 @@
   </div>
 </template>
 <script>
+
+  import axios from 'axios';
+
+  if(process.env.NODE_ENV == 'production') {
+    axios.defaults.baseURL = process.env.VUE_APP_API_BASE_URL
+  }
+
   export default {
+    created() {
+      axios.get('api/jpt').then(function(res) {
+        console.log(res);
+      })
+    },
     mounted() {
       document.body.classList.add('login-page')
+    },
+
+    methods:{
+
     },
     unmounted() {
       document.body.classList.remove('login-page')
