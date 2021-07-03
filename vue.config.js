@@ -3,14 +3,14 @@ module.exports = {
     productionSourceMap: false,
     devServer: {
         proxy: {
-        	'^/api': {
-        		target:'http://new.test',
-        		ws:true,
-        		changeOrigin: true
-        	}
+            '^/api': {
+                target: 'http://localhost:8000',
+                ws: true,
+                changeOrigin: true
+            }
         }
     },
-    
+
     chainWebpack: config => {
         config
             .plugin('html')
@@ -19,8 +19,7 @@ module.exports = {
                 return args;
             })
     },
-    publicPath: process.env.NODE_ENV === 'production'
-        ? '/'
-        : '/'
+    publicPath: process.env.NODE_ENV === 'production' ?
+        '/' : '/'
 
 }
