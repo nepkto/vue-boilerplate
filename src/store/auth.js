@@ -32,6 +32,12 @@ export const auth = {
       async login({commit},data) {
        commit('auth_request')
        return await Auth.login(data)
+      },
+
+      async logout({commit}) {
+        commit('logout')
+        localStorage.removeItem('token')
+        // delete axios.defaults.headers.common['Authorization']
       }
     },
     getters : {
