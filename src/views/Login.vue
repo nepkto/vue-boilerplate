@@ -58,7 +58,7 @@
             <!-- /.col -->
             <div class="col-4">
               <button type="submit" class="btn btn-primary btn-block">
-                Sign In
+                {{ btnStatus }}
               </button>
             </div>
             <!-- /.col -->
@@ -72,7 +72,7 @@
 <script>
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
-import Login from "../routes/Login.js";
+// import Auth from "@/endpoints/Auth.js";
 
 export default {
   components: {
@@ -95,18 +95,25 @@ export default {
   mounted: () => {
     document.body.classList.add("login-page");
   },
-
+  computed: {
+    btnStatus() {
+      return this.$store.state.auth.btnStatus;
+    },
+  },
   methods: {
     async submitLogin(data) {
       try {
-        let response = await Login.create(data);
-        if(response.status === 200) {
-          this.$router.replace({ name: "Dashboard" });
-        }
+        const response = await this.$store.dispatch("auth/login", data);
 
+        const token = response.data.body.access_token;
+
+        localStorage.setItem("token", token);
+        // this.$axios.defaults.headers.common['Authorization'] = token
+        this.$store.commit("auth/auth_success", token);
+        this.$router.replace({ name: "Dashboard" });
       } catch (e) {
-        console.log(e)
-        if (e.response.status === 422) {
+        this.$store.commit("auth/auth_error");
+        if (e.response.status === 422 || e.response.status === 401) {
           this.errorMsg = "Invalid Credentials";
         } else {
           this.errorMsg = "Woops. Something Went Wrong";

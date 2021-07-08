@@ -5,6 +5,5 @@ export default axios.create({
     // withCredentials: true,
     headers: {
         "Content-type": "application/json",
-        "Access-Control-Allow-Origin": "http://new.test"
     }
 });
