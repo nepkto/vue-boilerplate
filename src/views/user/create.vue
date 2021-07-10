@@ -59,8 +59,9 @@ import PageHeader from "@/layouts/components/PageHeader";
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
 import User from "@/endpoints/User";
+import { useToast } from "vue-toastification";
+const toast = useToast();
 
-// import http from "@/helpers/Http.js";
 export default {
   components: {
     PageHeader,
@@ -106,13 +107,12 @@ export default {
       this.disableButton = true;
       try {
         const response = await User.store(data);
-        if (response.status === 201) {
+        console.log(response);
+        toast.success("User Saved Successfully");
           this.$router.push({ name: "user.index" });
-        }
       } catch (ex) {
         this.disableButton = false;
-
-        console.log(ex.message);
+        toast.error(ex.message);
       }
     },
   },

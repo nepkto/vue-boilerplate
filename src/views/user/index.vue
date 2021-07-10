@@ -43,7 +43,7 @@
                     </button>
                     <button
                       class="btn btn-sm btn-danger"
-                      @click="destroy(index,user.id)"
+                      @click="destroy(index, user.id)"
                     >
                       Delete
                     </button>
@@ -76,7 +76,8 @@
 <script>
 import PageHeader from "@/layouts/components/PageHeader";
 import User from "@/endpoints/User";
-
+import { useToast } from "vue-toastification";
+const toast = useToast();
 export default {
   components: {
     PageHeader,
@@ -86,7 +87,6 @@ export default {
   },
   data: () => ({
     title: "Users",
-    errMsg: "",
     breadcrumbs: [
       {
         title: "Dashboard",
@@ -106,8 +106,7 @@ export default {
         const response = await User.getAll();
         this.users = response.data;
       } catch (ex) {
-        this.errMsg = ex.message;
-        console.log(ex);
+        toast.error(ex.message);
       }
     },
 
@@ -119,15 +118,38 @@ export default {
       this.$router.push({ name: "user.create" });
     },
 
-    async destroy(index,id) {
-      try {
-        this.users.splice(index,1)
-        await User.delete(id);
-        
-      } catch (ex) {
-        this.$router.replace({ name: "user.index" });
-        this.errMsg = ex.message;
-      }
+    destroy(index, id) {
+      let _this = this;
+      this.$swal
+        .fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, delete it!",
+        })
+        .then(function (result) {
+          if (result.isConfirmed) {
+            User.delete(id)
+              .then(function () {
+                _this.users.splice(index, 1);
+                _this.$swal.fire(
+                  "Deleted!",
+                  "User has been deleted.",
+                  "success"
+                );
+              })
+              .catch(function (err) {
+                _this.$swal.fire({
+                  icon: "error",
+                  title: "Oops...",
+                  text: err,
+                });
+              });
+          }
+        });
     },
   },
 };

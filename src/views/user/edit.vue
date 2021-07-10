@@ -50,6 +50,9 @@
 import PageHeader from "@/layouts/components/PageHeader";
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 import User from "@/endpoints/User";
 
 export default {
@@ -88,20 +91,19 @@ export default {
     };
   },
   mounted() {
-    this.formData =this.$route.params;
+    this.formData = this.$route.params;
   },
   methods: {
     async updateUser(data) {
       this.disableButton = true;
       try {
-        const response = await User.update(this.formData.id,data);
-        if (response.status === 201) {
-          this.$router.push({ name: "user.index" });
-        }
+        const response = await User.update(this.formData.id, data);
+        console.log(response);
+        toast.success("User Updated Successfully");
+        this.$router.push({ name: "user.index" });
       } catch (ex) {
         this.disableButton = false;
-
-        console.log(ex.message);
+        toast.error(ex.message);
       }
     },
   },
