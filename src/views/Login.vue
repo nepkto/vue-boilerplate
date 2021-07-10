@@ -72,7 +72,7 @@
 <script>
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
-// import Auth from "@/endpoints/Auth.js";
+import http from "@/helpers/Http.js";
 
 export default {
   components: {
@@ -104,13 +104,12 @@ export default {
     async submitLogin(data) {
       try {
         const response = await this.$store.dispatch("auth/login", data);
-
         const token = response.data.body.access_token;
 
         localStorage.setItem("token", token);
-        // this.$axios.defaults.headers.common['Authorization'] = token
+        http.defaults.headers.common['Authorization'] ='Bearer ' + token
         this.$store.commit("auth/auth_success", token);
-        this.$router.replace({ name: "Dashboard" });
+        this.$router.replace({ name: "dashboard" });
       } catch (e) {
         this.$store.commit("auth/auth_error");
         if (e.response.status === 422 || e.response.status === 401) {

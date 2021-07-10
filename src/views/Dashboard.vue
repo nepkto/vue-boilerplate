@@ -5,7 +5,6 @@
 	  </template>
 	  <template v-slot:default>
 	  Hello
-	  	
 	  </template>
 	</base-layout>
 </template>
