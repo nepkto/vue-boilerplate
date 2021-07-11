@@ -6,6 +6,11 @@
     <template v-slot:default>
       <div class="card">
         <div class="card-body">
+          <div v-if="vErrMsg" class="alert alert-danger" role="alert">
+            <li v-for="(msg,index) in showValidationError" :key=index>
+            {{ msg[0] }}
+            </li>
+          </div>
           <Form
             @submit="saveUser"
             :validation-schema="schema"
@@ -77,8 +82,7 @@ export default {
 
     return {
       schema,
-      vErrMsg: "",
-      errorMsg: "",
+      vErrMsg:"",
       disableButton: false,
       title: "Create new user",
       breadcrumbs: [
@@ -102,6 +106,17 @@ export default {
       },
     };
   },
+  computed: {
+    showValidationError() {
+      // let errMsg = '';
+      // errors.map(function(key,value){
+      //   console.log(key)
+      //    errMsg += '<p>' + value[0] + '</p>';
+      // })
+      const errMsg = Object.values(this.vErrMsg)
+      return errMsg;
+    }
+  },
   methods: {
     async saveUser(data) {
       this.disableButton = true;
@@ -109,10 +124,16 @@ export default {
         const response = await User.store(data);
         console.log(response);
         toast.success("User Saved Successfully");
-          this.$router.push({ name: "user.index" });
+        this.$router.push({ name: "user.index" });
       } catch (ex) {
         this.disableButton = false;
-        toast.error(ex.message);
+        if (ex.response.status == 422) {
+          this.vErrMsg = ex.response.data.errors;
+
+          toast.error(ex.response.statusText);
+        } else {
+          toast.error(ex.response.statusText);
+        }
       }
     },
   },
