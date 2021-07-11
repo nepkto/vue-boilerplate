@@ -108,11 +108,6 @@ export default {
   },
   computed: {
     showValidationError() {
-      // let errMsg = '';
-      // errors.map(function(key,value){
-      //   console.log(key)
-      //    errMsg += '<p>' + value[0] + '</p>';
-      // })
       const errMsg = Object.values(this.vErrMsg)
       return errMsg;
     }
