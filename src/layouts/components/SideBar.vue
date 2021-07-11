@@ -69,7 +69,7 @@
               </p>
             </a>
             <ul class="nav nav-treeview">
-              <li class="nav-item">
+              <li class="nav-item" v-if="authorizations.menuAccess('User')">
                 <router-link :to="{ name: 'user.index' }" class="nav-link"
                   ><i class="far fa-user nav-icon"></i>Users</router-link
                 >
@@ -98,3 +98,19 @@
     <!-- /.sidebar -->
   </aside>
 </template>
+
+<script>
+import Authorizations from "@/helpers/Authorization";
+export default {
+  data() {
+    return {
+      authorizations: new Authorizations(),
+    };
+  },
+  mounted() {
+    const permissions = this.$store.state.permissions
+    const userGroup = this.$store.state.user.user_group || ''
+    this.authorizations.set(userGroup, permissions);
+  },
+};
+</script>

@@ -6,18 +6,20 @@ export const auth = {
       status: '',
       btnStatus: 'Log In',
       token: localStorage.getItem('token') || '',
-      user : {}
+      user : {},
+      permissions:{}
     },
     mutations: {
       auth_request(state){
         state.status = 'loading'
         state.btnStatus = 'Sending...'
       },
-      auth_success(state, token){
+      auth_success(state, token, permissions, user){
         state.status = 'success'
         state.btnStatus = 'Success'
         state.token = token
-        // state.user = user
+        state.user = user
+        state.permissions = permissions
       },
       auth_error(state){
         state.status = 'error'
