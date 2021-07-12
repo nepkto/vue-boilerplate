@@ -3,33 +3,29 @@ class Authorizations {
    * Create a new authorizations instance.
    */
   constructor() {
-    this.authorizations = {};
+    this.authorizations = [];
     this.userGroup = "";
   }
 
-  set(userGroup, permissions){
+  set(userGroup, permissions) {
     this.authorizations = permissions;
     this.userGroup = userGroup;
   }
 
   /**
-   * Menu Access or Read Access
+   * Module Access or Read Access
    * string menu
-  **/
-  checkMenuAccess(menu) {
-    if(this.userGroup == 'Administration') {
-        return true;
+   **/
+  moduleAccess(module,accessType) {
+    if (this.userGroup === "Administrator") {
+      return true;
     }
-    
-    this.authorizations.foreach(function(auth){
-      if(auth.access_page === menu) {
-        return true;
-      }
-    })
 
+    const authorizations = this.authorizations;
+    if (authorizations.find((auth) => auth[accessType] === module.concat("Controller"))) {
+     return true;
+    }
     return false;
-    
   }
- 
 }
 export default Authorizations;

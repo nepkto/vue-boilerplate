@@ -24,7 +24,7 @@
           />
         </div>
         <div class="info">
-          <a href="#" class="d-block">Alexander Pierce</a>
+          <a href="#" class="d-block">{{ this.$store.state.auth.user.name }}</a>
         </div>
       </div>
 
@@ -69,7 +69,7 @@
               </p>
             </a>
             <ul class="nav nav-treeview">
-              <li class="nav-item" v-if="authorizations.menuAccess('User')">
+              <li class="nav-item" v-if="authorizations.moduleAccess('User','read')">
                 <router-link :to="{ name: 'user.index' }" class="nav-link"
                   ><i class="far fa-user nav-icon"></i>Users</router-link
                 >
@@ -108,8 +108,8 @@ export default {
     };
   },
   mounted() {
-    const permissions = this.$store.state.permissions
-    const userGroup = this.$store.state.user.user_group || ''
+    const permissions = this.$store.state.auth.permissions || []
+    const userGroup = this.$store.state.auth.user.group_name || ''
     this.authorizations.set(userGroup, permissions);
   },
 };

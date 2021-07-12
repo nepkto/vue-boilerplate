@@ -7,8 +7,8 @@
       <div class="card">
         <div class="card-body">
           <div v-if="vErrMsg" class="alert alert-danger" role="alert">
-            <li v-for="(msg,index) in showValidationError" :key=index>
-            {{ msg[0] }}
+            <li v-for="(msg, index) in showValidationError" :key="index">
+              {{ msg[0] }}
             </li>
           </div>
           <Form
@@ -64,6 +64,8 @@ import PageHeader from "@/layouts/components/PageHeader";
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
 import User from "@/endpoints/User";
+import Authorizations from "@/helpers/Authorization";
+
 import { useToast } from "vue-toastification";
 const toast = useToast();
 
@@ -82,7 +84,7 @@ export default {
 
     return {
       schema,
-      vErrMsg:"",
+      vErrMsg: "",
       disableButton: false,
       title: "Create new user",
       breadcrumbs: [
@@ -104,12 +106,22 @@ export default {
         name: "",
         password: "",
       },
+      authorizations: new Authorizations(),
     };
   },
   computed: {
     showValidationError() {
-      const errMsg = Object.values(this.vErrMsg)
+      const errMsg = Object.values(this.vErrMsg);
       return errMsg;
+    },
+  },
+  mounted() {
+    const permissions = this.$store.state.auth.permissions || [];
+    const userGroup = this.$store.state.auth.user.group_name || "";
+    this.authorizations.set(userGroup, permissions);
+    if (!this.authorizations.moduleAccess("User", "create")) {
+      toast.error("Access Denied");
+      this.$router.push({ name: "dashboard" });
     }
   },
   methods: {

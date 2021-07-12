@@ -54,6 +54,7 @@ import { useToast } from "vue-toastification";
 const toast = useToast();
 
 import User from "@/endpoints/User";
+import Authorizations from "@/helpers/Authorization";
 
 export default {
   components: {
@@ -88,10 +89,18 @@ export default {
           link: "",
         },
       ],
+      authorizations: new Authorizations(),
     };
   },
   mounted() {
     this.formData = this.$route.params;
+    const permissions = this.$store.state.auth.permissions || [];
+    const userGroup = this.$store.state.auth.user.group_name || "";
+    this.authorizations.set(userGroup, permissions);
+    if (!this.authorizations.moduleAccess("User", "create")) {
+      toast.error("Access Denied");
+      this.$router.push({ name: "dashboard" });
+    }
   },
   methods: {
     async updateUser(data) {

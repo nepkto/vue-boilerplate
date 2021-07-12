@@ -11,7 +11,7 @@
               <input type="search" class="form-control" placeholder="Search" />
             </div>
             <!-- <div></div> -->
-            <div class="">
+            <div class="" v-if="authorizations.moduleAccess('User', 'create')">
               <button class="btn btn-sm btn-default" @click="create">
                 <i class="fa fa-plus"></i> Create
               </button>
@@ -26,7 +26,15 @@
                   <th scope="col">#</th>
                   <th scope="col">Name</th>
                   <th scope="col">Email</th>
-                  <th scope="col">Action</th>
+                  <th
+                    v-if="
+                      authorizations.moduleAccess('User', 'edit') ||
+                      authorizations.moduleAccess('User', 'delete')
+                    "
+                    scope="col"
+                  >
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -38,10 +46,15 @@
                     <!-- <router-link class="btn btn-sm btn-primary" :to="{ name:'user.edit',params:user }"
                       >Edit</router-link
                     > -->
-                    <button class="btn btn-sm btn-primary" @click="edit(user)">
+                    <button
+                      v-if="authorizations.moduleAccess('User', 'edit')"
+                      class="btn btn-sm btn-primary"
+                      @click="edit(user)"
+                    >
                       Edit
                     </button>
                     <button
+                      v-if="authorizations.moduleAccess('User', 'delete')"
                       class="btn btn-sm btn-danger"
                       @click="destroy(index, user.id)"
                     >
@@ -77,13 +90,12 @@
 import PageHeader from "@/layouts/components/PageHeader";
 import User from "@/endpoints/User";
 import { useToast } from "vue-toastification";
+import Authorizations from "@/helpers/Authorization";
+
 const toast = useToast();
 export default {
   components: {
     PageHeader,
-  },
-  created() {
-    this.getUsers();
   },
   data: () => ({
     title: "Users",
@@ -98,15 +110,26 @@ export default {
       },
     ],
     users: [],
+    authorizations: new Authorizations(),
   }),
-
+  mounted() {
+    const permissions = this.$store.state.auth.permissions || [];
+    const userGroup = this.$store.state.auth.user.group_name || "";
+    this.authorizations.set(userGroup, permissions);
+    if (!this.authorizations.moduleAccess("User", "read")) {
+      toast.error("Access Denied");
+      this.$router.push({ name: "dashboard" });
+    } else {
+      this.getUsers();
+    }
+  },
   methods: {
     async getUsers() {
       try {
         const response = await User.getAll();
-        this.users = response.data;
+        this.users = response.data.data;
       } catch (ex) {
-        toast.error(ex.message);
+        toast.error(ex.response.data.message);
       }
     },
 

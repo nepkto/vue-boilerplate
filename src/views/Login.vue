@@ -104,11 +104,25 @@ export default {
     async submitLogin(data) {
       try {
         const response = await this.$store.dispatch("auth/login", data);
-        const token = response.data.body.access_token;
 
+        const token = response.data.data.token;
+        const user = response.data.data.user;
         localStorage.setItem("token", token);
-        http.defaults.headers.common['Authorization'] ='Bearer ' + token
-        this.$store.commit("auth/auth_success", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        http.defaults.headers.common["Authorization"] = "Bearer " + token;
+
+        const permissionRes = await this.$store.dispatch(
+          "auth/group_acess",
+          user.group_id
+        );
+        const permissions = permissionRes.data.data;
+        localStorage.setItem("permissions", JSON.stringify(permissions));
+
+        this.$store.commit("auth/auth_success", {
+          token:token, 
+          permissions:permissions, 
+          user:user
+        });
         this.$router.replace({ name: "dashboard" });
       } catch (e) {
         this.$store.commit("auth/auth_error");
