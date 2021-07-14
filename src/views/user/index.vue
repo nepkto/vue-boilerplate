@@ -8,10 +8,21 @@
         <div class="card-header">
           <div class="d-flex justify-content-between">
             <div class="">
-              <input type="search" class="form-control" placeholder="Search" />
+              <select
+                @change="onPerPageChange"
+                v-model="pagination.per_page"
+                class="form-control"
+              >
+                <template
+                  v-for="(value, index) in pagination_values"
+                  :key="index"
+                >
+                  <option :value="value">{{ value }}</option>
+                </template>
+              </select>
             </div>
             <!-- <div></div> -->
-            <div class="" v-if="authorizations.moduleAccess('User', 'create')">
+            <div v-if="authorizations.moduleAccess('User', 'create')">
               <button class="btn btn-sm btn-default" @click="create">
                 <i class="fa fa-plus"></i> Create
               </button>
@@ -67,25 +78,25 @@
           </div>
         </div>
         <div class="card-footer">
-        <div class="row">
+          <div class="row">
             <div class="col-md-6 col-12">
               <nexus-pagination
-              :pagination="pagination"
-              @click="getUsers(pagination.current_page)"
-              @changePage="changePage"
-              :offset="offset"
-            >
-            </nexus-pagination>
+                :pagination="pagination"
+                @click="getUsers(pagination.current_page)"
+                @changePage="changePage"
+                :offset="offset"
+              >
+              </nexus-pagination>
             </div>
             <div class="col-md-6 col-12">
-               <nav aria-label="Pagination">
-              <ul class="pagination justify-content-end">
-                <li>
-                  Page <strong>{{ pagination.current_page }}</strong> out of
-                  <strong>{{ pagination.last_page }}</strong>
-                </li>
-              </ul>
-            </nav>
+              <nav aria-label="Pagination">
+                <ul class="pagination justify-content-end">
+                  <li>
+                    Page <strong>{{ pagination.current_page }}</strong> out of
+                    <strong>{{ pagination.last_page }}</strong>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
@@ -123,14 +134,14 @@ export default {
     authorizations: new Authorizations(),
     pagination: {
       total: 0,
-      per_page: 2,
+      per_page: 50,
       from: 1,
       to: 0,
       current_page: 1,
       last_page: 0,
     },
     offset: 4,
-    pagination_values: [5, 10, 25, 50],
+    pagination_values: [50, 100, 500, 1000],
   }),
   mounted() {
     const permissions = this.$store.state.auth.permissions || [];
@@ -158,7 +169,9 @@ export default {
         toast.error(ex.response.data.message);
       }
     },
-
+    onPerPageChange() {
+      this.getUsers();
+    },
     edit: function (user) {
       this.$router.push({ name: "user.edit", params: user });
     },
