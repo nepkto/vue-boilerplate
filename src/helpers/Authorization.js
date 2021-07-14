@@ -17,9 +17,9 @@ class Authorizations {
    * string menu
    **/
   moduleAccess(module,accessType) {
-    if (this.userGroup === "Administrator") {
-      return true;
-    }
+    // if (this.userGroup === "Administrator") {
+    //   return true;
+    // }
 
     const authorizations = this.authorizations;
     if (authorizations.find((auth) => auth[accessType] === module.concat("Controller"))) {

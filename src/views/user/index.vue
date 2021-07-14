@@ -37,6 +37,7 @@
                   <th scope="col">#</th>
                   <th scope="col">Name</th>
                   <th scope="col">Email</th>
+                  <th scope="col">Group</th>
                   <th
                     v-if="
                       authorizations.moduleAccess('User', 'edit') ||
@@ -49,10 +50,43 @@
                 </tr>
               </thead>
               <tbody>
+                <tr>
+                  <th></th>
+                  <th>
+                    <input
+                      v-model="filter.name"
+                      class="form-control"
+                      type="text"
+                      placeholder="Name"
+                    />
+                  </th>
+                  <th>
+                    <input
+                      v-model="filter.email"
+                      class="form-control"
+                      type="text"
+                      placeholder="Email"
+                    />
+                  </th>
+                  <th>
+                    <input
+                      v-model="filter.group"
+                      class="form-control"
+                      type="text"
+                      placeholder="Group"
+                    />
+                  </th>
+                  <th>
+                    <button class="btn btn-sm btn-primary" @click="filterData">
+                      <i class="fa fa-filter"></i> Filter
+                    </button>
+                  </th>
+                </tr>
                 <tr v-for="(user, index) in users" :key="user.id">
                   <th scope="row">{{ index + 1 }}</th>
                   <td>{{ user.name }}</td>
                   <td>{{ user.email }}</td>
+                  <td>{{ user.group_name }}</td>
                   <td>
                     <!-- <router-link class="btn btn-sm btn-primary" :to="{ name:'user.edit',params:user }"
                       >Edit</router-link
@@ -130,6 +164,11 @@ export default {
         link: "",
       },
     ],
+    filter: {
+      name: "",
+      email: "",
+      group: "",
+    },
     users: [],
     authorizations: new Authorizations(),
     pagination: {
@@ -141,7 +180,7 @@ export default {
       last_page: 0,
     },
     offset: 4,
-    pagination_values: [50, 100, 500, 1000],
+    pagination_values: [10, 50, 100, 500, 1000],
   }),
   mounted() {
     const permissions = this.$store.state.auth.permissions || [];
@@ -159,6 +198,9 @@ export default {
       let paginationDetails = {
         page_size: this.pagination.per_page,
         page: this.pagination.current_page,
+        filter_name: this.filter.name,
+        filter_email: this.filter.email,
+        filter_group: this.filter.group,
       };
       try {
         const response = await User.getAll(paginationDetails);
@@ -170,6 +212,9 @@ export default {
       }
     },
     onPerPageChange() {
+      this.getUsers();
+    },
+    filterData() {
       this.getUsers();
     },
     edit: function (user) {

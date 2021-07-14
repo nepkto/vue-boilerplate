@@ -1,5 +1,5 @@
 <template>
-  <nav aria-label="Pagination" class="float-left">
+  <nav aria-label="" class="float-left">
     <ul class="pagination justify-content-end">
       <li class="page-item" :class="{ disabled: prevBtn }">
         <a
