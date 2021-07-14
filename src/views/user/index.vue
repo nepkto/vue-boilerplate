@@ -134,7 +134,7 @@ import PageHeader from "@/layouts/components/PageHeader";
 import User from "@/endpoints/User";
 import { useToast } from "vue-toastification";
 import Authorizations from "@/helpers/Authorization";
-import Pagination from "@/layouts/components/Pagination.vue";
+import Pagination from "@/components/Pagination.vue";
 
 const toast = useToast();
 export default {

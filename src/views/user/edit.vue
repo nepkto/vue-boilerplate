@@ -21,7 +21,9 @@
                   class="form-control"
                   v-model="formData.name"
                 />
-                <div class="invalid-feedback d-block">{{ errors.name }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ errors.name || vErrs.get("name") }}
+                </div>
               </div>
             </div>
             <div class="form-group row">
@@ -29,25 +31,37 @@
                 >User Group</label
               >
               <div class="col-sm-10">
-                <Field name="group" v-model="formData.group_id"  as="select" class="form-control">
+                <Field
+                  name="group"
+                  v-model="formData.group_id"
+                  as="select"
+                  class="form-control"
+                >
                   <template v-for="(group, index) in userGroups" :key="index">
                     <option :value="group.id">{{ group.group_title }}</option>
                   </template>
                 </Field>
-                <div class="invalid-feedback d-block">{{ errors.group }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ errors.group || vErrs.get("group") }}
+                </div>
               </div>
             </div>
             <div class="form-group row">
-              <label for="group" class="col-sm-2 col-form-label"
-                >Type</label
-              >
+              <label for="group" class="col-sm-2 col-form-label">Type</label>
               <div class="col-sm-10">
-                <Field name="type" v-model="formData.type" as="select" class="form-control">
+                <Field
+                  name="type"
+                  v-model="formData.type"
+                  as="select"
+                  class="form-control"
+                >
                   <template v-for="(type, index) in userTypes" :key="index">
                     <option :value="type.id">{{ type.name }}</option>
                   </template>
                 </Field>
-                <div class="invalid-feedback d-block">{{ errors.type }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ errors.type || vErrs.get("type") }}
+                </div>
               </div>
             </div>
             <div class="form-group row">
@@ -60,7 +74,9 @@
                   placeholder="email"
                   class="form-control"
                 />
-                <div class="invalid-feedback d-block">{{ errors.email }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ errors.email || vErrs.get("email") }}
+                </div>
               </div>
             </div>
 
@@ -77,7 +93,7 @@
                   class="form-control"
                 />
                 <div class="invalid-feedback d-block">
-                  {{ errors.password }}
+                  {{ errors.password || vErrs.get("password") }}
                 </div>
               </div>
             </div>
@@ -125,6 +141,7 @@ const toast = useToast();
 
 import User from "@/endpoints/User";
 import Authorizations from "@/helpers/Authorization";
+import Errors from "@/helpers/ValidationError";
 
 export default {
   components: {
@@ -146,15 +163,13 @@ export default {
 
     return {
       schema,
-      vErrMsg: "",
-      errorMsg: "",
       disableButton: false,
       title: "Edit user",
       formData: {
-        group:{
-          id:'',
-          name:''
-        }
+        group: {
+          id: "",
+          name: "",
+        },
       },
       userGroups: [],
       userTypes: [
@@ -206,6 +221,7 @@ export default {
         },
       ],
       authorizations: new Authorizations(),
+      vErrs: new Errors(),
     };
   },
   mounted() {
@@ -217,14 +233,14 @@ export default {
       toast.error("Access Denied");
       this.$router.push({ name: "dashboard" });
     } else {
-      this.getUserById()
+      this.getUserById();
     }
   },
   methods: {
-    async getUserById(){
-       try {
+    async getUserById() {
+      try {
         const response = await User.getById(this.$route.params.id);
-        const {user, groups} = response.data.data;
+        const { user, groups } = response.data.data;
         this.formData = user;
         this.userGroups = groups;
       } catch (ex) {
@@ -239,7 +255,12 @@ export default {
         this.$router.push({ name: "user.index" });
       } catch (ex) {
         this.disableButton = false;
-        toast.error(ex.message);
+        if (ex.response.status == 422) {
+          this.vErrs.record(ex.response.data.errors);
+          toast.error(ex.response.statusText);
+        } else {
+          toast.error(ex.response.statusText);
+        }
       }
     },
   },

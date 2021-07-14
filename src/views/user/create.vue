@@ -6,12 +6,6 @@
     <template v-slot:default>
       <div class="card">
         <div class="card-body">
-          <div v-if="vErrMsg" class="alert alert-danger" role="alert">
-            <li v-for="(msg, index) in showValidationError" :key="index">
-              {{ msg[0] }}
-            </li>
-          </div>
-
           <Form
             @submit="saveUser"
             :validation-schema="schema"
@@ -26,7 +20,9 @@
                   placeholder="name"
                   class="form-control"
                 />
-                <div class="invalid-feedback d-block">{{ errors.name }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ errors.name || vErrs.get("name") }}
+                </div>
               </div>
             </div>
             <div class="form-group row">
@@ -39,20 +35,22 @@
                     <option :value="group.id">{{ group.group_title }}</option>
                   </template>
                 </Field>
-                <div class="invalid-feedback d-block">{{ errors.group }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ errors.group || vErrs.get("group") }}
+                </div>
               </div>
             </div>
             <div class="form-group row">
-              <label for="type" class="col-sm-2 col-form-label"
-                >Type</label
-              >
+              <label for="type" class="col-sm-2 col-form-label">Type</label>
               <div class="col-sm-10">
                 <Field name="type" as="select" class="form-control">
                   <template v-for="(type, index) in userTypes" :key="index">
                     <option :value="type.id">{{ type.name }}</option>
                   </template>
                 </Field>
-                <div class="invalid-feedback d-block">{{ errors.type }}</div>
+                <div class="invalid-feedback d-block">
+                  {{ errors.type || vErrs.get("type") }}
+                </div>
               </div>
             </div>
             <div class="form-group row">
@@ -64,7 +62,10 @@
                   placeholder="email"
                   class="form-control"
                 />
-                <div class="invalid-feedback d-block">{{ errors.email }}</div>
+
+                <div class="invalid-feedback d-block">
+                  {{ errors.email || vErrs.get("email") }}
+                </div>
               </div>
             </div>
 
@@ -80,7 +81,7 @@
                   class="form-control"
                 />
                 <div class="invalid-feedback d-block">
-                  {{ errors.password }}
+                  {{ errors.password || vErrs.get("password") }}
                 </div>
               </div>
             </div>
@@ -124,6 +125,7 @@ import { Form, Field } from "vee-validate";
 import * as yup from "yup";
 import User from "@/endpoints/User";
 import Authorizations from "@/helpers/Authorization";
+import Errors from "@/helpers/ValidationError";
 
 import { useToast } from "vue-toastification";
 const toast = useToast();
@@ -150,7 +152,6 @@ export default {
 
     return {
       schema,
-      vErrMsg: "",
       disableButton: false,
       title: "Create new user",
       breadcrumbs: [
@@ -172,7 +173,7 @@ export default {
         name: "",
         password: "",
         group: "",
-        type:""
+        type: "",
       },
       userGroups: [],
       userTypes: [
@@ -210,13 +211,8 @@ export default {
         },
       ],
       authorizations: new Authorizations(),
+      vErrs: new Errors(),
     };
-  },
-  computed: {
-    showValidationError() {
-      const errMsg = Object.values(this.vErrMsg);
-      return errMsg;
-    },
   },
   mounted() {
     const permissions = this.$store.state.auth.permissions || [];
@@ -239,8 +235,7 @@ export default {
       } catch (ex) {
         this.disableButton = false;
         if (ex.response.status == 422) {
-          this.vErrMsg = ex.response.data.errors;
-
+          this.vErrs.record(ex.response.data.errors);
           toast.error(ex.response.statusText);
         } else {
           toast.error(ex.response.statusText);
