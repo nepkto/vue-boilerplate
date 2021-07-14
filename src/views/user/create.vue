@@ -11,46 +11,63 @@
               {{ msg[0] }}
             </li>
           </div>
+
           <Form
             @submit="saveUser"
             :validation-schema="schema"
             v-slot="{ errors }"
           >
-            <div class="form-group">
-              <label for="name">Name</label>
-              <Field
-                type="text"
-                name="name"
-                placeholder="name"
-                class="form-control"
-              />
-              <div class="invalid-feedback d-block">{{ errors.name }}</div>
+            <div class="form-group row">
+              <label for="name" class="col-sm-2 col-form-label">Name</label>
+              <div class="col-sm-10">
+                <Field
+                  type="text"
+                  name="name"
+                  placeholder="name"
+                  class="form-control"
+                />
+                <div class="invalid-feedback d-block">{{ errors.name }}</div>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="email">Email</label>
-              <Field
-                type="email"
-                name="email"
-                placeholder="email"
-                class="form-control"
-              />
-              <div class="invalid-feedback d-block">{{ errors.email }}</div>
+            <div class="form-group row">
+              <label for="email" class="col-sm-2 col-form-label">Email</label>
+              <div class="col-sm-10">
+                <Field
+                  type="email"
+                  name="email"
+                  placeholder="email"
+                  class="form-control"
+                />
+                <div class="invalid-feedback d-block">{{ errors.email }}</div>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="password">Password</label>
-              <Field
-                type="text"
-                name="password"
-                placeholder="password"
-                class="form-control"
-              />
-              <div class="invalid-feedback d-block">{{ errors.password }}</div>
+            <div class="form-group row">
+              <label for="password" class="col-sm-2 col-form-label"
+                >Password</label
+              >
+              <div class="col-sm-10">
+                <Field
+                  type="text"
+                  name="password"
+                  placeholder="password"
+                  class="form-control"
+                />
+                <div class="invalid-feedback d-block">
+                  {{ errors.password }}
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <button class="btn btn-sm btn-primary" :disabled="disableButton">
-                Save
-              </button>
+            <div class="form-group row">
+              <label class="col-sm-2 col-form-label"></label>
+              <div class="col-sm-10">
+                <button
+                  class="btn btn-sm btn-primary"
+                  :disabled="disableButton"
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </Form>
         </div>
@@ -75,6 +92,7 @@ export default {
     Form,
     Field,
   },
+
   data: () => {
     const schema = yup.object({
       email: yup.string().required().email(),
@@ -128,8 +146,7 @@ export default {
     async saveUser(data) {
       this.disableButton = true;
       try {
-        const response = await User.store(data);
-        console.log(response);
+        await User.store(data);
         toast.success("User Saved Successfully");
         this.$router.push({ name: "user.index" });
       } catch (ex) {

@@ -1,7 +1,7 @@
 import http from "@/helpers/Http.js";
 
 class User {
-    getAll = () => http.get('api/v1/admin/users');
+    getAll = (params) => http.get('api/v1/admin/users',{ params: params });
 
     getById = (id) => http.get(`api/v1/admin/users/${id}`)
 

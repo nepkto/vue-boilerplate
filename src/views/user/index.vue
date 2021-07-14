@@ -19,7 +19,7 @@
           </div>
         </div>
         <div class="card-body">
-          <div class="row">
+          <div class="row table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
@@ -67,19 +67,27 @@
           </div>
         </div>
         <div class="card-footer">
-          <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-              <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1">Previous</a>
-              </li>
-              <li class="page-item"><a class="page-link" href="#">1</a></li>
-              <li class="page-item"><a class="page-link" href="#">2</a></li>
-              <li class="page-item"><a class="page-link" href="#">3</a></li>
-              <li class="page-item">
-                <a class="page-link" href="#">Next</a>
-              </li>
-            </ul>
-          </nav>
+        <div class="row">
+            <div class="col-md-6 col-12">
+              <nexus-pagination
+              :pagination="pagination"
+              @click="getUsers(pagination.current_page)"
+              @changePage="changePage"
+              :offset="offset"
+            >
+            </nexus-pagination>
+            </div>
+            <div class="col-md-6 col-12">
+               <nav aria-label="Pagination">
+              <ul class="pagination justify-content-end">
+                <li>
+                  Page <strong>{{ pagination.current_page }}</strong> out of
+                  <strong>{{ pagination.last_page }}</strong>
+                </li>
+              </ul>
+            </nav>
+            </div>
+          </div>
         </div>
       </div>
     </template>
@@ -91,11 +99,13 @@ import PageHeader from "@/layouts/components/PageHeader";
 import User from "@/endpoints/User";
 import { useToast } from "vue-toastification";
 import Authorizations from "@/helpers/Authorization";
+import Pagination from "@/layouts/components/Pagination.vue";
 
 const toast = useToast();
 export default {
   components: {
     PageHeader,
+    "nexus-pagination": Pagination,
   },
   data: () => ({
     title: "Users",
@@ -111,6 +121,16 @@ export default {
     ],
     users: [],
     authorizations: new Authorizations(),
+    pagination: {
+      total: 0,
+      per_page: 2,
+      from: 1,
+      to: 0,
+      current_page: 1,
+      last_page: 0,
+    },
+    offset: 4,
+    pagination_values: [5, 10, 25, 50],
   }),
   mounted() {
     const permissions = this.$store.state.auth.permissions || [];
@@ -125,9 +145,15 @@ export default {
   },
   methods: {
     async getUsers() {
+      let paginationDetails = {
+        page_size: this.pagination.per_page,
+        page: this.pagination.current_page,
+      };
       try {
-        const response = await User.getAll();
-        this.users = response.data.data;
+        const response = await User.getAll(paginationDetails);
+        const { data, meta } = response.data;
+        this.users = data;
+        this.pagination = meta;
       } catch (ex) {
         toast.error(ex.response.data.message);
       }
@@ -173,6 +199,9 @@ export default {
               });
           }
         });
+    },
+    changePage(page) {
+      this.pagination.current_page = page;
     },
   },
 };
