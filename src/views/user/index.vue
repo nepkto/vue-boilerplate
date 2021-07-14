@@ -7,21 +7,14 @@
       <div class="card">
         <div class="card-header">
           <div class="d-flex justify-content-between">
-            <div class="">
+            <div>
               <select
                 @change="onPerPageChange"
                 v-model="pagination.per_page"
                 class="form-control"
               >
-                <template
-                  v-for="(value, index) in pagination_values"
-                  :key="index"
-                >
-                  <option :value="value">{{ value }}</option>
-                </template>
               </select>
             </div>
-            <!-- <div></div> -->
             <div v-if="authorizations.moduleAccess('User', 'create')">
               <button class="btn btn-sm btn-default" @click="create">
                 <i class="fa fa-plus"></i> Create
@@ -88,23 +81,20 @@
                   <td>{{ user.email }}</td>
                   <td>{{ user.group_name }}</td>
                   <td>
-                    <!-- <router-link class="btn btn-sm btn-primary" :to="{ name:'user.edit',params:user }"
-                      >Edit</router-link
-                    > -->
-                    <button
-                      v-if="authorizations.moduleAccess('User', 'edit')"
-                      class="btn btn-sm btn-primary"
-                      @click="edit(user)"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      v-if="authorizations.moduleAccess('User', 'delete')"
-                      class="btn btn-sm btn-danger"
-                      @click="destroy(index, user.id)"
-                    >
-                      Delete
-                    </button>
+                    <div class="btn-group" role="group" aria-label="Button">
+                      <router-link
+                        :to="{ name: 'user.edit', params: { id: user.id } }"
+                        class="btn btn-sm btn-primary"
+                        ><i class="fa fa-edit"></i></router-link
+                      >
+                      <button
+                        v-if="authorizations.moduleAccess('User', 'delete')"
+                        class="btn btn-sm btn-danger"
+                        @click="destroy(index, user.id)"
+                      >
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -217,8 +207,8 @@ export default {
     filterData() {
       this.getUsers();
     },
-    edit: function (user) {
-      this.$router.push({ name: "user.edit", params: user });
+    edit: function (id) {
+      this.$router.push({ name: "user.edit", params: id });
     },
 
     create() {
@@ -240,11 +230,12 @@ export default {
         .then(function (result) {
           if (result.isConfirmed) {
             User.delete(id)
-              .then(function () {
+              .then(function (response) {
+                console.log(response)
                 _this.users.splice(index, 1);
                 _this.$swal.fire(
-                  "Deleted!",
-                  "User has been deleted.",
+                  "Deleted!!!",
+                  response.data.message,
                   "success"
                 );
               })

@@ -30,6 +30,32 @@
               </div>
             </div>
             <div class="form-group row">
+              <label for="group" class="col-sm-2 col-form-label"
+                >User Group</label
+              >
+              <div class="col-sm-10">
+                <Field name="group" as="select" class="form-control">
+                  <template v-for="(group, index) in userGroups" :key="index">
+                    <option :value="group.id">{{ group.group_title }}</option>
+                  </template>
+                </Field>
+                <div class="invalid-feedback d-block">{{ errors.group }}</div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="type" class="col-sm-2 col-form-label"
+                >Type</label
+              >
+              <div class="col-sm-10">
+                <Field name="type" as="select" class="form-control">
+                  <template v-for="(type, index) in userTypes" :key="index">
+                    <option :value="type.id">{{ type.name }}</option>
+                  </template>
+                </Field>
+                <div class="invalid-feedback d-block">{{ errors.type }}</div>
+              </div>
+            </div>
+            <div class="form-group row">
               <label for="email" class="col-sm-2 col-form-label">Email</label>
               <div class="col-sm-10">
                 <Field
@@ -55,6 +81,22 @@
                 />
                 <div class="invalid-feedback d-block">
                   {{ errors.password }}
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="password_confirmation" class="col-sm-2 col-form-label"
+                >Password Confirmation</label
+              >
+              <div class="col-sm-10">
+                <Field
+                  type="text"
+                  name="password_confirmation"
+                  placeholder="Password Confirmation"
+                  class="form-control"
+                />
+                <div class="invalid-feedback d-block">
+                  {{ errors.password_confirmation }}
                 </div>
               </div>
             </div>
@@ -96,8 +138,14 @@ export default {
   data: () => {
     const schema = yup.object({
       email: yup.string().required().email(),
-      name: yup.string().required(),
-      password: yup.string().required(),
+      name: yup.string().required().min(5),
+      group: yup.string().required(),
+      type: yup.string().required(),
+      password: yup.string().required().min(8),
+      password_confirmation: yup
+        .string()
+        .required()
+        .oneOf([yup.ref("password"), null], "Passwords must match"),
     });
 
     return {
@@ -123,7 +171,44 @@ export default {
         email: "",
         name: "",
         password: "",
+        group: "",
+        type:""
       },
+      userGroups: [],
+      userTypes: [
+        {
+          id: 0,
+          name: "Head",
+        },
+        {
+          id: 1,
+          name: "Province 1",
+        },
+        {
+          id: 2,
+          name: "Province 2",
+        },
+        {
+          id: 3,
+          name: "Province 3",
+        },
+        {
+          id: 4,
+          name: "Province 4",
+        },
+        {
+          id: 5,
+          name: "Province 5",
+        },
+        {
+          id: 6,
+          name: "Province 6",
+        },
+        {
+          id: 7,
+          name: "Province 7",
+        },
+      ],
       authorizations: new Authorizations(),
     };
   },
@@ -140,6 +225,8 @@ export default {
     if (!this.authorizations.moduleAccess("User", "create")) {
       toast.error("Access Denied");
       this.$router.push({ name: "dashboard" });
+    } else {
+      this.listUserGroups();
     }
   },
   methods: {
@@ -158,6 +245,14 @@ export default {
         } else {
           toast.error(ex.response.statusText);
         }
+      }
+    },
+    async listUserGroups() {
+      try {
+        const response = await User.getUserGroups();
+        this.userGroups = response.data.data;
+      } catch (ex) {
+        toast.error(ex.response);
       }
     },
   },

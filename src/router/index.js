@@ -35,7 +35,7 @@ const routes = [
     },
   },
   {
-    path: "/users/edit",
+    path: "/users/edit/:id",
     name: "user.edit",
     component: () => import("../views/user/edit"),
     meta: {
