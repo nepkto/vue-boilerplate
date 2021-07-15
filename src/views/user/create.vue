@@ -51,10 +51,13 @@
                 <Field name="type" as="select" class="form-control">
                   <option value="" disabled>Select User Type</option>
 
-                  <template v-for="(type, index) in userTypes" :key="index">
-
-                    <option :value="type.id">{{ type.name }}</option>
-                  </template>
+                  <option
+                    v-for="(type, index) in userTypes"
+                    :key="index"
+                    :value="type.id"
+                  >
+                    {{ type.name }}
+                  </option>
                 </Field>
                 <div class="invalid-feedback d-block">
                   {{ errors.type || vErrs.get("type") }}
@@ -176,9 +179,7 @@ export default {
           link: "",
         },
       ],
-      form: {
-       
-      },
+      form: {},
       userGroups: [],
       userTypes: [
         {
