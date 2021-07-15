@@ -12,10 +12,6 @@
       <li class="nav-item d-none d-sm-inline-block">
         <a href="#" class="nav-link">Contact</a>
       </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a @click="logout" href="#" class="btn btn-sm btn-primary">Logout</a>
-      </li>
-
     </ul>
 
     <!-- Right navbar links -->
@@ -145,12 +141,5 @@
 <script>
   export default {
     name: "MenuBar",
-    methods: {
-      async logout() {
-        await this.$store.dispatch("auth/logout")
-        this.$router.replace({ name: "Login" });
-        
-      }
-    }
   }
 </script>

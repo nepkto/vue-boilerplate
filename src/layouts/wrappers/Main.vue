@@ -17,6 +17,7 @@
       </div>
       <!-- /.content -->
     </div>
+    <ControllSiderBar/>
     <!-- /.content-wrapper -->
     <Footer/>
   </div>
@@ -25,6 +26,7 @@
 <script>
   import NavBar from "../components/NavBar";
   import SideBar from "../components/SideBar";
+  import ControllSiderBar from "../components/ControllSidebar";
   import Footer from "../components/Footer";
   // import PageHeader from "../components/PageHeader";
   export default {
@@ -32,7 +34,8 @@
     components: {
       NavBar,
       SideBar,
-      Footer
+      Footer,
+      ControllSiderBar
     }
   }
 </script>

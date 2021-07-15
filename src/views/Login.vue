@@ -91,7 +91,11 @@ export default {
       errorMsg: "",
     };
   },
-
+  created() {
+     if (this.$store.getters["auth/isLoggedIn"]) {
+      this.$router.push({'name':'dashboard'})
+    }
+  },
   mounted: () => {
     document.body.classList.add("login-page");
   },
