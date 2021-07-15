@@ -29,6 +29,7 @@
           </div>
         </div>
         <div class="card-body">
+          
           <div class="row table-responsive">
             <table class="table table-striped">
               <thead>
@@ -81,7 +82,8 @@
                     </button>
                   </th>
                 </tr>
-                <tr v-for="(user, index) in users" :key="user.id">
+                 <template v-if="users.length > 0">
+                   <tr v-for="(user, index) in users" :key="user.id">
                   <th scope="row">{{ index + 1 }}</th>
                   <td>{{ user.name }}</td>
                   <td>{{ user.email }}</td>
@@ -104,6 +106,11 @@
                     </div>
                   </td>
                 </tr>
+                 </template>
+                 <template v-else>
+                   <h5 class="text-center">No Record Found</h5>
+                 </template>
+                
               </tbody>
             </table>
           </div>

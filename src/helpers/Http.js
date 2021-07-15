@@ -9,7 +9,7 @@ const instance = axios.create({
         "Content-type": "application/json",
     }
 });
-
+instance.defaults.showLoader = true;
 if(AUTH_TOKEN) {
     instance.defaults.headers.common['Authorization'] = 'Bearer ' + AUTH_TOKEN;
 }
