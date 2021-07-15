@@ -31,9 +31,14 @@
               >
               <div class="col-sm-10">
                 <Field name="group" as="select" class="form-control">
-                  <template v-for="(group, index) in userGroups" :key="index">
-                    <option :value="group.id">{{ group.group_title }}</option>
-                  </template>
+                  <option value="" disabled>Select User Group</option>
+                  <option
+                    v-for="(group, index) in userGroups"
+                    :key="index"
+                    :value="group.id"
+                  >
+                    {{ group.group_title }}
+                  </option>
                 </Field>
                 <div class="invalid-feedback d-block">
                   {{ errors.group || vErrs.get("group") }}
@@ -44,7 +49,10 @@
               <label for="type" class="col-sm-2 col-form-label">Type</label>
               <div class="col-sm-10">
                 <Field name="type" as="select" class="form-control">
+                  <option value="" disabled>Select User Type</option>
+
                   <template v-for="(type, index) in userTypes" :key="index">
+
                     <option :value="type.id">{{ type.name }}</option>
                   </template>
                 </Field>
@@ -169,11 +177,7 @@ export default {
         },
       ],
       form: {
-        email: "",
-        name: "",
-        password: "",
-        group: "",
-        type: "",
+       
       },
       userGroups: [],
       userTypes: [

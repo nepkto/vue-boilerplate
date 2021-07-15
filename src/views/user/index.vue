@@ -73,6 +73,8 @@
                   </th>
                   <th>
                     <select v-model="filter.group" class="form-control">
+                      <option value="">-- User Group --</option>
+
                       <option
                         v-for="(group, index) in userGroups"
                         :value="group.id"
@@ -240,7 +242,6 @@ export default {
       try {
         const response = await User.getUserGroups();
         this.userGroups = response.data.data;
-        this.filter.group = this.userGroups[0].id;
       } catch (ex) {
         toast.error(ex.response.data.message);
       }

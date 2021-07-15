@@ -1,7 +1,6 @@
 <template>
   <router-view />
   <loader v-if="loading" />
-  <slot v-else></slot>
 </template>
 
 <script>
@@ -9,7 +8,7 @@ import http from "@/helpers/Http.js";
 import { mapState } from "vuex";
 import Loader from "@/components/Loader";
 export default {
-    name: "gapp",
+    name: "app",
   components: {
     Loader
   },

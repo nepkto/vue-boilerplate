@@ -60,8 +60,8 @@
               ><i class="nav-icon fas fa-th"></i>Dashboard</router-link
             >
           </li>
-          <li class="nav-item menu-open">
-            <a href="#" class="nav-link">
+          <li class="nav-item" :class="{'menu-open':menuActive}">
+            <a href="#" class="nav-link" :class="{active:menuActive}">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                 System
@@ -70,7 +70,7 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item" v-if="authorizations.moduleAccess('User','read')">
-                <router-link :to="{ name: 'user.index' }" class="nav-link"
+                <router-link :to="{ name: 'user.index' }" class="nav-link" :class="{active:menuActive}"
                   ><i class="far fa-user nav-icon"></i>Users</router-link
                 >
               </li>
@@ -104,6 +104,7 @@ import Authorizations from "@/helpers/Authorization";
 export default {
   data() {
     return {
+      menuActive:false,
       authorizations: new Authorizations(),
     };
   },
