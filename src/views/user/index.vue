@@ -6,30 +6,33 @@
     <template v-slot:default>
       <div class="card">
         <div class="card-header">
-          <div class="d-flex justify-content-between">
-            <div>
+          <div class="d-flex">
+            <div class="mt-2">Page</div>
+            <div class="p-1">
               <select
                 @change="onPerPageChange"
                 v-model="pagination.per_page"
                 class="form-control"
               >
-                <template
+                <option
                   v-for="(value, index) in pagination_values"
                   :key="index"
+                  :value="value"
                 >
-                  <option :value="value">{{ value }}</option>
-                </template>
+                  {{ value }}
+                </option>
               </select>
             </div>
-            <div v-if="authorizations.moduleAccess('User', 'create')">
-              <button class="btn btn-sm btn-default" @click="create">
-                <i class="fa fa-plus"></i> Create
-              </button>
+            <div class="p-1 ml-auto">
+              <div v-if="authorizations.moduleAccess('User', 'create')">
+                <button class="btn btn-sm btn-default" @click="create">
+                  <i class="fa fa-plus"></i> Create
+                </button>
+              </div>
             </div>
           </div>
         </div>
         <div class="card-body">
-          
           <div class="row table-responsive">
             <table class="table table-striped">
               <thead>
@@ -69,12 +72,15 @@
                     />
                   </th>
                   <th>
-                    <input
-                      v-model="filter.group"
-                      class="form-control"
-                      type="text"
-                      placeholder="Group"
-                    />
+                    <select v-model="filter.group" class="form-control">
+                      <option
+                        v-for="(group, index) in userGroups"
+                        :value="group.id"
+                        :key="index"
+                      >
+                        {{ group.group_title }}
+                      </option>
+                    </select>
                   </th>
                   <th>
                     <button class="btn btn-sm btn-primary" @click="filterData">
@@ -82,35 +88,34 @@
                     </button>
                   </th>
                 </tr>
-                 <template v-if="users.length > 0">
-                   <tr v-for="(user, index) in users" :key="user.id">
-                  <th scope="row">{{ index + 1 }}</th>
-                  <td>{{ user.name }}</td>
-                  <td>{{ user.email }}</td>
-                  <td>{{ user.group_name }}</td>
-                  <td>
-                    <div class="btn-group" role="group" aria-label="Button">
-                      <router-link
-                        v-if="editAccess"
-                        :to="{ name: 'user.edit', params: { id: user.id } }"
-                        class="btn btn-sm btn-primary"
-                        ><i class="fa fa-edit"></i
-                      ></router-link>
-                      <button
-                        v-if="deleteAccess"
-                        class="btn btn-sm btn-danger"
-                        @click="destroy(index, user.id)"
-                      >
-                        <i class="fa fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                 </template>
-                 <template v-else>
-                   <h5 class="text-center">No Record Found</h5>
-                 </template>
-                
+                <template v-if="users.length > 0">
+                  <tr v-for="(user, index) in users" :key="user.id">
+                    <th scope="row">{{ index + 1 }}</th>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.group_name }}</td>
+                    <td>
+                      <div class="btn-group" role="group" aria-label="Button">
+                        <router-link
+                          v-if="editAccess"
+                          :to="{ name: 'user.edit', params: { id: user.id } }"
+                          class="btn btn-sm btn-primary"
+                          ><i class="fa fa-edit"></i
+                        ></router-link>
+                        <button
+                          v-if="deleteAccess"
+                          class="btn btn-sm btn-danger"
+                          @click="destroy(index, user.id)"
+                        >
+                          <i class="fa fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+                <template v-else>
+                  <h5 class="text-center">No Record Found</h5>
+                </template>
               </tbody>
             </table>
           </div>
@@ -174,21 +179,22 @@ export default {
       group: "",
     },
     users: [],
+    userGroups: [],
     authorizations: new Authorizations(),
     pagination: {
       total: 0,
-      per_page: 50,
+      per_page: 25,
       from: 1,
       to: 0,
       current_page: 1,
       last_page: 0,
     },
     offset: 4,
-    pagination_values: [10, 50, 100, 500, 1000],
+    pagination_values: [5, 10, 25, 50],
     editAccess: false,
     deleteAccess: false,
   }),
-  mounted() {
+  created() {
     const permissions = this.$store.state.auth.permissions || [];
     const userGroup = this.$store.state.auth.user.group_name || "";
     this.authorizations.set(userGroup, permissions);
@@ -207,7 +213,9 @@ export default {
       } else {
         this.editAccess = false;
       }
-      this.getUsers();
+      this.getUsers().then(() => {
+        return this.getUserGroups();
+      });
     }
   },
   methods: {
@@ -224,6 +232,15 @@ export default {
         const { data, meta } = response.data;
         this.users = data;
         this.pagination = meta;
+      } catch (ex) {
+        toast.error(ex.response.data.message);
+      }
+    },
+    async getUserGroups() {
+      try {
+        const response = await User.getUserGroups();
+        this.userGroups = response.data.data;
+        this.filter.group = this.userGroups[0].id;
       } catch (ex) {
         toast.error(ex.response.data.message);
       }
