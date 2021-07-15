@@ -13,6 +13,12 @@
                 v-model="pagination.per_page"
                 class="form-control"
               >
+                <template
+                  v-for="(value, index) in pagination_values"
+                  :key="index"
+                >
+                  <option :value="value">{{ value }}</option>
+                </template>
               </select>
             </div>
             <div v-if="authorizations.moduleAccess('User', 'create')">
@@ -83,12 +89,13 @@
                   <td>
                     <div class="btn-group" role="group" aria-label="Button">
                       <router-link
+                        v-if="editAccess"
                         :to="{ name: 'user.edit', params: { id: user.id } }"
                         class="btn btn-sm btn-primary"
-                        ><i class="fa fa-edit"></i></router-link
-                      >
+                        ><i class="fa fa-edit"></i
+                      ></router-link>
                       <button
-                        v-if="authorizations.moduleAccess('User', 'delete')"
+                        v-if="deleteAccess"
                         class="btn btn-sm btn-danger"
                         @click="destroy(index, user.id)"
                       >
@@ -171,6 +178,8 @@ export default {
     },
     offset: 4,
     pagination_values: [10, 50, 100, 500, 1000],
+    editAccess: false,
+    deleteAccess: false,
   }),
   mounted() {
     const permissions = this.$store.state.auth.permissions || [];
@@ -180,6 +189,17 @@ export default {
       toast.error("Access Denied");
       this.$router.push({ name: "dashboard" });
     } else {
+      if (this.authorizations.moduleAccess("User", "delete")) {
+        this.deleteAccess = true;
+      } else {
+        this.deleteAccess = false;
+      }
+
+      if (this.authorizations.moduleAccess("User", "edit")) {
+        this.editAccess = true;
+      } else {
+        this.editAccess = false;
+      }
       this.getUsers();
     }
   },
@@ -231,7 +251,6 @@ export default {
           if (result.isConfirmed) {
             User.delete(id)
               .then(function (response) {
-                console.log(response)
                 _this.users.splice(index, 1);
                 _this.$swal.fire(
                   "Deleted!!!",

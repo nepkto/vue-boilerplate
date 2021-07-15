@@ -8,6 +8,7 @@
         <div class="card-body">
           <Form
             @submit="updateUser"
+            @keydown="vErrs.clear($event.target.name)"
             :validation-schema="schema"
             v-slot="{ errors }"
           >
